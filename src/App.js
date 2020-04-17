@@ -164,8 +164,6 @@ export default function App() {
     ? currentRoomData.guest_score
     : currentRoomData.creator_score;
 
-  console.log({ myscore: myScore, opponent: myOponentScore });
-
   return (
     <div className="App">
       <div className="stage">
