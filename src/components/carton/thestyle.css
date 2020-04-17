@@ -1,0 +1,11 @@
+.carton {
+  width: 100%;
+  display: flex;
+  flex-direction: horizontal;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.carton .egg {
+  margin: 5px;
+}
