@@ -1,22 +1,21 @@
 import React from "react";
 import { useSpring, animated } from "react-spring";
-import "./thestyle.css";
 
-export function Smash({ children, showCrack }) {
+export default function Smash({ children, showCrack }) {
   const props = [
     useSpring({
-      position: "absolute",
+      position: "relative",
       transform: "rotate( 180deg )",
-      top: 20,
-      from: { top: -300 },
+      top: 11,
+      from: { top: -180 },
       onRest: () => {
         showCrack(true);
       }
     }),
     useSpring({
-      position: "absolute",
-      top: 200,
-      from: { top: 420 }
+      position: "relative",
+      top: 11,
+      from: { top: 120 }
     })
   ];
   const renderedChildren = children.map((child, key) => {

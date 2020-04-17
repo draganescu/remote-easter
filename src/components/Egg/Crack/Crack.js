@@ -1,7 +1,7 @@
 import React from "react";
-import "./thestyle.css";
+import "./_style.scss";
 
-export function Crack() {
+export default function Crack() {
   return (
     <div className="crack">
       <svg

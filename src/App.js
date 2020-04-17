@@ -1,13 +1,12 @@
 import React from "react";
-import "./styles.css";
-
-import { Link } from "./components/link";
-import { Carton } from "./components/carton";
-import { Greet } from "./components/greet";
-import { Smash } from "./components/smash";
-import { Egg } from "./components/egg";
-
+import "./styles.scss";
+import "@github/clipboard-copy-element";
 import { db, auth } from "./firebase";
+
+import Carton from "./components/Carton/Carton";
+import Egg from "./components/Egg/Egg";
+import Smash from "./components/Smash/Smash";
+import { Footer } from "./components/Footer";
 
 function randomIntFromInterval(min, max) {
   // min and max included
@@ -22,9 +21,7 @@ export default function App() {
   const [currentRoomData, setCurrentRoomData] = React.useState({});
   const [userID, setUserID] = React.useState(null);
   const [isCreator, setIsCreator] = React.useState(null);
-  const [color, setColor] = React.useState(null);
-  const [fightStatus, setFightStatus] = React.useState(null);
-  const [crack, setCrack] = React.useState(false);
+  const [showCrack, setShowCrack] = React.useState(false);
 
   function getAllRooms() {
     db.collection("rooms").onSnapshot(snapshot => {
@@ -46,7 +43,6 @@ export default function App() {
       })
       .then(user => {
         setUserID(user.user.uid);
-        console.log(user.user.uid);
       });
   }
 
@@ -83,11 +79,69 @@ export default function App() {
         });
       } else {
         console.log("setUserOrGuest: No room created yet");
+
         setIsCreator(true);
+        addRoom();
       }
     } else {
       console.log("Hold your horses");
     }
+  }
+
+  function addRoom() {
+    console.log("addRoom");
+    db.collection("rooms")
+      .add({
+        creator: userID
+      })
+      .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+        window.location.hash = `#${docRef.id}`;
+        setCurrentRoomID(docRef.id);
+      });
+  }
+
+  function changeRoom(id) {
+    window.location.hash = `#${id}`;
+    setCurrentRoomID(id);
+  }
+
+  function onCopyAndNext() {
+    db.collection("rooms")
+      .doc(currentRoomID)
+      .set(
+        {
+          isLinkShared: true
+        },
+        { merge: true }
+      );
+  }
+
+  function onColorChange(color) {
+    console.log("onColorChange", color);
+    const key = isCreator ? "creator_color" : "guest_color";
+    db.collection("rooms")
+      .doc(currentRoomID)
+      .set(
+        {
+          [key]: color
+        },
+        { merge: true }
+      );
+  }
+
+  function onFightChanged(value) {
+    const keyFightStatus = isCreator ? "creator_fighting" : "guest_fighting";
+    const keyScoreNumber = isCreator ? "creator_score" : "guest_score";
+    db.collection("rooms")
+      .doc(currentRoomID)
+      .set(
+        {
+          [keyFightStatus]: value,
+          [keyScoreNumber]: randomIntFromInterval(0, 10000)
+        },
+        { merge: true }
+      );
   }
 
   React.useEffect(setCreatorOrGuestForRoom, [userID, currentRoomID]);
@@ -95,50 +149,6 @@ export default function App() {
   React.useEffect(autenticate, []);
 
   React.useEffect(getAllRooms, []);
-
-  async function addRoom() {
-    const docRef = await db.collection("rooms").add({
-      creator: userID
-    });
-    console.log("Document written with ID: ", docRef.id);
-    window.location.hash = `#${docRef.id}`;
-    setCurrentRoomID(docRef.id);
-    return docRef.id;
-  }
-
-  function onColorChange(option) {
-    console.log(option);
-    option = option || option.target.value;
-    console.log("Option", option);
-    const key = isCreator ? "creator_color" : "guest_color";
-    db.collection("rooms")
-      .doc(currentRoomID)
-      .set(
-        {
-          [key]: option
-        },
-        { merge: true }
-      );
-    setColor(option);
-  }
-
-  async function onFightChanged(option) {
-    option = option || option.target.value;
-    console.log("Option", option);
-    const keyFightStatus = isCreator ? "creator_fighting" : "guest_fighting";
-    const keyScoreNumber = isCreator ? "creator_score" : "guest_score";
-    await db
-      .collection("rooms")
-      .doc(currentRoomID)
-      .set(
-        {
-          [keyFightStatus]: option,
-          [keyScoreNumber]: randomIntFromInterval(0, 10000)
-        },
-        { merge: true }
-      );
-    setFightStatus(option);
-  }
 
   const mySelectedColor = isCreator
     ? currentRoomData.creator_color
@@ -164,35 +174,366 @@ export default function App() {
     ? currentRoomData.guest_score
     : currentRoomData.creator_score;
 
+  const isLinkShared = currentRoomData.isLinkShared;
+
+  function GuestCarton() {
+    return (
+      <Carton
+        isForGuests={true}
+        onEggSelect={color => {
+          console.log(
+            `You should not click here, but since you want to know, you clicked a ${color} egg`
+          );
+        }}
+        activeColor={myOponentColor}
+      />
+    );
+  }
+
+  /*
+  1: CreatorWelcome 
+  2: GuestWelcome
+  3: WaitingColor
+  4: WaitingFight
+  5: Results
+
+  */
+
+  const isLoaded =
+    userID !== null && currentRoomID !== null && isCreator !== null;
+
+  const renderCreatorWelcome = isCreator && !isLinkShared;
+
+  const renderWaitingColor =
+    (!isCreator || (isCreator && isLinkShared)) &&
+    (myOponentColor === undefined || mySelectedColor === undefined);
+
+  const renderWaitingFights =
+    myOponentColor !== undefined &&
+    mySelectedColor !== undefined &&
+    (myFightStatus === undefined || myOponentFightStatus === undefined);
+
+  const renderResults =
+    myFightStatus !== undefined && myOponentFightStatus !== undefined;
+
+  console.log({
+    isLoaded,
+    renderCreatorWelcome,
+    renderWaitingColor,
+    renderWaitingFights,
+    renderResults
+  });
+
+  const colorOptions = ["red", "blue", "yellow"];
+  console.log({ myFightStatus });
   return (
-    <div className="App">
-      <div className="stage">
-        {!currentRoomID && <Link onClick={addRoom} />}
-        {currentRoomID && !color && (
-          <Carton
-            onEggSelect={color => {
-              onColorChange(color);
-            }}
-          />
-        )}
-        {color && (!myOponentScore || !myScore) && (
-          <Greet onClick={onFightChanged} isCreator={isCreator} />
-        )}
-        {myFightStatus && myOponentFightStatus && (
-          <Smash showCrack={setCrack}>
-            <Egg
-              color={myOponentColor}
-              crack={crack}
-              isCracked={myScore > myOponentScore}
-            />
-            <Egg
-              color={mySelectedColor}
-              crack={crack}
-              isCracked={myScore < myOponentScore}
-            />
-          </Smash>
+    <>
+      <div className="app">
+        <div className="app-content">
+          {isLoaded ? (
+            <>
+              {renderCreatorWelcome && (
+                <>
+                  <div className="creatorWelcome">
+                    <div className="headerText">
+                      <p>Paste Fericit</p>
+                      <h1>
+                        Sparge un ou virtual cu prietenii{" "}
+                        <span aria-label="Iepuras" role="img">
+                          🐰
+                        </span>
+                      </h1>
+                    </div>
+
+                    <div className="middleText">
+                      <p>
+                        Copiaza link-ul de mai jos si trimite-l unui prieten.
+                        Intre timp poti alege culoare oului tau.
+                      </p>
+                    </div>
+                    <div className="creatorWelcome__action">
+                      <input type="text" value={window.location.href} />
+                      <clipboard-copy
+                        class={"clipbutton"}
+                        value={window.location.href}
+                        onClick={onCopyAndNext}
+                      >
+                        Copiaza si alege culoare oului
+                      </clipboard-copy>
+                    </div>
+                  </div>
+                </>
+              )}
+              {renderWaitingColor && (
+                <>
+                  <GuestCarton />
+                  {isCreator ? (
+                    <div className="middleText">
+                      <span aria-label="Ceas" role="img">
+                        🕞
+                      </span>
+                      <p>
+                        {myOponentColor
+                          ? `Prietenul tau a ales culaorea. Alege si tu o culoare apasand pe unul din oualele de mai jos.`
+                          : `Asteptam sa-si aleaga prietenul tau culoarea oului lui.
+                        Intre timp alege-ti si tu culoarea preferata. Odata ce
+                        ati ales culoarea amadoi veti trece la pasul 2, rostirea
+                        salutului traditional.`}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="headerText">
+                        <p>Paste Fericit</p>
+                        <h1>
+                          Prietenul tau vrea sa ciocneasca un ou cu tine!
+                          <span aria-label="Iepuras" role="img">
+                            🐰
+                          </span>
+                        </h1>
+                      </div>
+                      <div className="middleText">
+                        <p>
+                          Alege-ti si tu culoarea preferata. Odata ce ati ales
+                          culoarea amadoi veti trece la pasul 2, rostirea
+                          salutului traditional.
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  <Carton
+                    onEggSelect={onColorChange}
+                    activeColor={mySelectedColor}
+                  />
+                </>
+              )}
+
+              {renderWaitingFights && (
+                <>
+                  <GuestCarton />
+                  <div className="middleText">
+                    {myFightStatus === undefined ? (
+                      <p>
+                        Traditia spune ca inainte de a ciocnii oualele, trebuie
+                        sa se rosteasca “Hristos a inviat” si “Adevarat a
+                        inviat” de catre cei doi jucatori. Aici trebuie doar sa
+                        apesi pe butonul de mai jos.
+                      </p>
+                    ) : (
+                      <>
+                        <p>
+                          <span aria-label="Iepuras" role="img">
+                            🤔💭
+                          </span>
+                        </p>
+                        <p>
+                          Asteptam sa raspunda cu salut si prietenul tau si vom
+                          incepe ciocnirea.
+                        </p>
+                      </>
+                    )}
+                    <button
+                      className="fightButton"
+                      disabled={myFightStatus}
+                      onClick={() => onFightChanged(true)}
+                    >
+                      {isCreator ? "Hristos a inviat" : "Adevarat a inviat"}
+                    </button>
+                  </div>
+                  <Carton
+                    onEggSelect={onColorChange}
+                    activeColor={mySelectedColor}
+                  />
+                </>
+              )}
+
+              {renderResults && (
+                <>
+                  <div className="headerText">
+                    {myScore > myOponentScore ? (
+                      <>
+                        <p>Paste Fericit</p>
+                        <h1>
+                          Felicitari, ai castigat!
+                          <span aria-label="Iepuras" role="img">
+                            👌
+                          </span>
+                        </h1>
+                      </>
+                    ) : (
+                      <>
+                        <p>Paste Fericit</p>
+                        <h1>
+                          Ai pierdut
+                          <span aria-label="Iepuras" role="img">
+                            🤦🏻‍♀️
+                          </span>
+                        </h1>
+                      </>
+                    )}
+                  </div>
+                  <div className="smash-wrapper">
+                    <Smash showCrack={setShowCrack}>
+                      <Egg
+                        color={myOponentColor}
+                        crack={showCrack}
+                        isCracked={myScore > myOponentScore}
+                      />
+                      <Egg
+                        color={mySelectedColor}
+                        crack={showCrack}
+                        isCracked={myScore < myOponentScore}
+                      />
+                    </Smash>
+                  </div>
+                  <div className="middleText">
+                    <button
+                      onClick={() => {
+                        window.location.hash = "";
+                        window.location.reload();
+                      }}
+                    >
+                      Incepe un joc nou
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+        <Footer />
+      </div>
+
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <></>
+      <div className="stuff">
+        {userID !== null && currentRoomID !== null && isCreator !== null ? (
+          <div>
+            <p>Userid: {userID}</p>
+            <p>
+              {isCreator ? <strong>Creator</strong> : <strong>Guest</strong>}
+              <button onClick={onCopyAndNext}>Share</button>
+              {currentRoomID === ""
+                ? " on nothing."
+                : ` on room: ${currentRoomID}`}
+            </p>
+
+            {currentRoomID !== "" && (
+              <>
+                <label htmlFor="option_color">Select color: </label>
+                <select
+                  id="option_color"
+                  onChange={e => {
+                    onColorChange(e.target.value);
+                  }}
+                  value={mySelectedColor}
+                  name="color"
+                  placeholder="Select color"
+                >
+                  <option>Please select something</option>
+                  {colorOptions.map(option => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {myOponentColor && mySelectedColor && (
+                  <>
+                    <br />
+                    <br />
+                    <label>
+                      Fight:{" "}
+                      <input
+                        onChange={e => {
+                          onFightChanged(e.target.value);
+                        }}
+                        type="checkbox"
+                        name="fight"
+                      />
+                    </label>
+                  </>
+                )}
+                {myOponentColor ? (
+                  <>
+                    <p>Oponent color: {myOponentColor}</p>
+                    <p>Oponent fight status: {myOponentFightStatus}</p>
+                    <p>My fight status: {myFightStatus}</p>
+
+                    <p>Oponent score: {myOponentScore}</p>
+                    <p>My score: {myScore}</p>
+                  </>
+                ) : (
+                  <p>Waiting for oponent to select color</p>
+                )}
+
+                {myOponentScore && myScore && (
+                  <h1>
+                    {myOponentScore < myScore
+                      ? "You are a winner 🥇"
+                      : "You lost 😭"}
+                  </h1>
+                )}
+              </>
+            )}
+            <br />
+            <hr />
+            <button onClick={addRoom}>Create new Room</button>
+            <hr />
+            <h3>Rooms</h3>
+            <ul>
+              {rooms.map(room => (
+                <li
+                  onClick={() => {
+                    changeRoom(room.id);
+                  }}
+                  key={room.id}
+                >
+                  {room.id === currentRoomID ? (
+                    <strong>{room.id} </strong>
+                  ) : (
+                    <span>{room.id}</span>
+                  )}
+                  <br /> Creator:{" "}
+                  {room.creator === userID ? "You" : room.creator}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <>{userID === null && isCreator !== true && <p>Loading</p>}</>
         )}
       </div>
-    </div>
+    </>
   );
 }

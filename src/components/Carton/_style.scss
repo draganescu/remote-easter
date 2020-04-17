@@ -1,0 +1,26 @@
+.carton {
+  width: 100%;
+  display: flex;
+  flex-direction: horizontal;
+  justify-content: space-between;
+  padding: 5px;
+  overflow: auto;
+  transition: opacity .2s ease;
+  &.is-not-selected {
+    opacity: .2;
+  }
+  &.is-for-guests {
+    transform: rotate(180deg);
+    //position: relative;
+    .egg {
+      &:not(.is-active) {
+        opacity: .3;
+      }
+    }
+    //margin: -130px 0 0 0;
+  }
+}
+
+.carton .egg {
+  margin: 5px;
+}
