@@ -236,13 +236,23 @@ export default function App() {
                 <>
                   <div className="creatorWelcome">
                     <div className="headerText">
-                      <p>Paste Fericit</p>
                       <h1>
                         Sparge un ou virtual cu prietenii{" "}
                         <span aria-label="Iepuras" role="img">
                           🐰
                         </span>
                       </h1>
+                      <p>
+                        Vrei sa iti vizitezi neamurile si prietenii ca sa
+                        ciocniti un ou si nu poti din cauza carantinei?
+                      </p>
+                      <p>Paste Fericit!</p>
+                      <p>
+                        Aici poti ciocni pe net un ou cu fiecare persoana draga,
+                        chiar daca aceasta s-a distantat social de tine. Sau tu
+                        de ea. .. In fine.
+                      </p>
+                      <p>Maioneza o aduceti voi!</p>
                     </div>
 
                     <div className="middleText">
@@ -258,7 +268,7 @@ export default function App() {
                         value={window.location.href}
                         onClick={onCopyAndNext}
                       >
-                        Copiaza si alege culoare oului
+                        Copiaza si alege culoarea oului
                       </clipboard-copy>
                     </div>
                   </div>
@@ -269,16 +279,16 @@ export default function App() {
                   <GuestCarton />
                   {isCreator ? (
                     <div className="middleText">
+                      <h1>Alege-ti culoarea oului</h1>
                       <span aria-label="Ceas" role="img">
                         🕞
                       </span>
                       <p>
                         {myOponentColor
                           ? `Prietenul tau a ales culaorea. Alege si tu o culoare apasand pe unul din oualele de mai jos.`
-                          : `Asteptam sa-si aleaga prietenul tau culoarea oului lui.
-                        Intre timp alege-ti si tu culoarea preferata. Odata ce
-                        ati ales culoarea amadoi veti trece la pasul 2, rostirea
-                        salutului traditional.`}
+                          : `Asteptam pe cineva! I-ai trimis linkul?
+                          Intre timp alege-ti si tu culoarea preferata. Odata ce
+                        ati ales culoarea amadoi veti trece la pasul 2!`}
                       </p>
                     </div>
                   ) : (
@@ -286,7 +296,7 @@ export default function App() {
                       <div className="headerText">
                         <p>Paste Fericit</p>
                         <h1>
-                          Prietenul tau vrea sa ciocneasca un ou cu tine!
+                          Cineva vrea sa ciocneasca un ou cu tine!
                           <span aria-label="Iepuras" role="img">
                             🐰
                           </span>
@@ -294,9 +304,8 @@ export default function App() {
                       </div>
                       <div className="middleText">
                         <p>
-                          Alege-ti si tu culoarea preferata. Odata ce ati ales
-                          culoarea amadoi veti trece la pasul 2, rostirea
-                          salutului traditional.
+                          Alege-ti culoarea preferata. Odata ce ati ales amadoi
+                          veti trece la pasul 2!.
                         </p>
                       </div>
                     </>
@@ -312,12 +321,15 @@ export default function App() {
                 <>
                   <GuestCarton />
                   <div className="middleText">
+                    <h1>
+                      {!isCreator ? "Hristos a inviat" : "Adevarat a inviat"}
+                    </h1>
                     {myFightStatus === undefined ? (
                       <p>
-                        Traditia spune ca inainte de a ciocnii oualele, trebuie
-                        sa se rosteasca “Hristos a inviat” si “Adevarat a
-                        inviat” de catre cei doi jucatori. Aici trebuie doar sa
-                        apesi pe butonul de mai jos.
+                        Traditia spune ca inainte de a ciocnii ouale, trebuie sa
+                        se rosteasca “Hristos a inviat” si “Adevarat a inviat”
+                        de catre cei doi jucatori. Aici trebuie doar sa apesi pe
+                        butonul de mai jos.
                       </p>
                     ) : (
                       <>
@@ -326,10 +338,7 @@ export default function App() {
                             🤔💭
                           </span>
                         </p>
-                        <p>
-                          Asteptam sa raspunda cu salut si prietenul tau si vom
-                          incepe ciocnirea.
-                        </p>
+                        <p>Asteptam sa raspunda la uarare si apoi "Cioc!"</p>
                       </>
                     )}
                     <button
@@ -352,7 +361,6 @@ export default function App() {
                   <div className="headerText">
                     {myScore > myOponentScore ? (
                       <>
-                        <p>Paste Fericit</p>
                         <h1>
                           Felicitari, ai castigat!
                           <span aria-label="Iepuras" role="img">
@@ -362,7 +370,6 @@ export default function App() {
                       </>
                     ) : (
                       <>
-                        <p>Paste Fericit</p>
                         <h1>
                           Ai pierdut
                           <span aria-label="Iepuras" role="img">

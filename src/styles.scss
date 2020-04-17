@@ -38,6 +38,10 @@ html {
   p {
     color: #5E5E5E;
     margin: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 30px;
+    margin-right: 30px;
   }
   h1 {
     color: #582626;
@@ -45,10 +49,19 @@ html {
     line-height: 1.2;
     font-weight: normal;
     margin:0;
+    margin-bottom: 20px;
   }
 }
 
 .middleText {
+  h1 {
+    color: #582626;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    font-weight: normal;
+    margin:0;
+    margin-bottom: 20px;
+  }
   padding: 1rem .5rem;
   p {
     color: #5E5E5E;
