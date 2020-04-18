@@ -250,7 +250,7 @@ export default function App() {
                       {isNativeShareEnabled ? (
                         <button onClick={() => {
                           navigator.share({
-                            title: "Hai sa spargem un ou virtual",
+                            title: "Hai sa ciocnim un ou",
                             text: "Hai sa ciocnim un ou!",
                             url: window.location.href
                           })
