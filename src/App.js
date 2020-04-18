@@ -13,6 +13,22 @@ function randomIntFromInterval(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+
+function GuestCarton({activeColor, scrollPosition}) {
+  return (
+    <Carton
+      isForGuests={true}
+      onEggSelect={color => {
+        console.log(
+          `You should not click here, but since you want to know, you clicked a ${color} egg`
+        );
+      }}
+      scrollPosition={scrollPosition}
+      activeColor={activeColor}
+    />
+  );
+}
+
 export default function App() {
   const [currentRoomID, setCurrentRoomID] = React.useState(
     window.location.hash.replace("#", "")
@@ -104,14 +120,15 @@ export default function App() {
       );
   }
 
-  function onColorChange(color) {
+  function onColorChange(color, scrollPosition) {
     console.log("onColorChange", color);
     const key = isCreator ? "creator_color" : "guest_color";
     db.collection("rooms")
       .doc(currentRoomID)
       .set(
         {
-          [key]: color
+          [key]: color,
+          'scrollPosition': scrollPosition
         },
         { merge: true }
       );
@@ -161,19 +178,6 @@ export default function App() {
 
   const isLinkShared = currentRoomData.isLinkShared;
 
-  function GuestCarton() {
-    return (
-      <Carton
-        isForGuests={true}
-        onEggSelect={color => {
-          console.log(
-            `You should not click here, but since you want to know, you clicked a ${color} egg`
-          );
-        }}
-        activeColor={myOponentColor}
-      />
-    );
-  }
 
   /*
   1: CreatorWelcome 
@@ -271,7 +275,7 @@ export default function App() {
               )}
               {renderWaitingColor && (
                 <>
-                  <GuestCarton />
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={currentRoomData.scrollPosition} />
                   {isCreator ? (
                     <div className="middleText">
                       <h1>Alege-ti culoarea oului</h1>
@@ -329,7 +333,7 @@ export default function App() {
 
               {renderWaitingFights && (
                 <>
-                  <GuestCarton />
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={currentRoomData.scrollPosition}/>
                   <div className="middleText">
                     <h1>
                       {!isCreator ? "Hristos a inviat" : "Adevarat a inviat"}

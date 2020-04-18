@@ -6,6 +6,13 @@
   padding: 5px;
   overflow: auto;
   transition: opacity .2s ease;
+
+  //For a bit of padding for the box-shadow of the egg
+  &::after {
+    content: '';
+    padding: 0.5em;
+  }
+  
   &.is-not-selected {
     opacity: .2;
   }
