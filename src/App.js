@@ -14,7 +14,6 @@ function randomIntFromInterval(min, max) {
 }
 
 export default function App() {
-  const [rooms, setRooms] = React.useState([]);
   const [currentRoomID, setCurrentRoomID] = React.useState(
     window.location.hash.replace("#", "")
   );
@@ -23,17 +22,6 @@ export default function App() {
   const [isCreator, setIsCreator] = React.useState(null);
   const [showCrack, setShowCrack] = React.useState(false);
 
-  function getAllRooms() {
-    db.collection("rooms").onSnapshot(snapshot => {
-      const allRooms = snapshot.docs.map(doc => {
-        return {
-          id: doc.id,
-          ...doc.data()
-        };
-      });
-      setRooms(allRooms);
-    });
-  }
   function autenticate() {
     console.log("autenticate");
     auth
@@ -101,11 +89,6 @@ export default function App() {
       });
   }
 
-  function changeRoom(id) {
-    window.location.hash = `#${id}`;
-    setCurrentRoomID(id);
-  }
-
   function onCopyAndNext() {
     db.collection("rooms")
       .doc(currentRoomID)
@@ -147,8 +130,6 @@ export default function App() {
   React.useEffect(setCreatorOrGuestForRoom, [userID, currentRoomID]);
 
   React.useEffect(autenticate, []);
-
-  React.useEffect(getAllRooms, []);
 
   const mySelectedColor = isCreator
     ? currentRoomData.creator_color
@@ -242,23 +223,23 @@ export default function App() {
                           🐰
                         </span>
                       </h1>
-                      <p>
-                        Vrei sa iti vizitezi neamurile si prietenii ca sa
-                        ciocniti un ou si nu poti din cauza carantinei?
-                      </p>
-                      <p>Paste Fericit!</p>
-                      <p>
-                        Aici poti ciocni pe net un ou cu fiecare persoana draga,
-                        chiar daca aceasta s-a distantat social de tine. Sau tu
-                        de ea. .. In fine.
-                      </p>
-                      <p>Maioneza o aduceti voi!</p>
                     </div>
 
                     <div className="middleText">
                       <p>
-                        Copiaza link-ul de mai jos si trimite-l unui prieten.
-                        Intre timp poti alege culoare oului tau.
+                        Vrei sa iti vizitezi neamurile si prietenii ca sa
+                        ciocniti un ou si nu poti din cauza carantinei?
+                      </p>
+                      <p>Paste Fericit! Se rezolva :)</p>
+                      <p>
+                        Aici poti ciocni pe net un ou cu fiecare persoana draga,
+                        chiar daca aceasta s-a distantat social de tine.
+                      </p>
+                      <p>Maioneza o aduceti voi!</p>
+                      <p>
+                        1. Copiaza link-ul de mai jos <br />
+                        2. Trimite-l unui prieten <br />
+                        3. Apoi revino aici.
                       </p>
                     </div>
                     <div className="creatorWelcome__action">
@@ -268,7 +249,7 @@ export default function App() {
                         value={window.location.href}
                         onClick={onCopyAndNext}
                       >
-                        Copiaza si alege culoarea oului
+                        Copiaza link si mergi mai departe ->
                       </clipboard-copy>
                     </div>
                   </div>
@@ -283,18 +264,33 @@ export default function App() {
                       <span aria-label="Ceas" role="img">
                         🕞
                       </span>
-                      <p>
-                        {myOponentColor
-                          ? `Prietenul tau a ales culaorea. Alege si tu o culoare apasand pe unul din oualele de mai jos.`
-                          : `Asteptam pe cineva! I-ai trimis linkul?
-                          Intre timp alege-ti si tu culoarea preferata. Odata ce
-                        ati ales culoarea amadoi veti trece la pasul 2!`}
-                      </p>
+
+                      {myOponentColor && (
+                        <p>
+                          {
+                            "Prietenul tau a ales culaorea. Alege si tu o culoare apasand pe unul din oualele de mai jos"
+                          }
+                        </p>
+                      )}
+                      {!myOponentColor && (
+                        <>
+                          <p>
+                            {
+                              "Ai copiat linkul, bravo! Trimite-l persoanei dragi si revino!"
+                            }
+                          </p>
+                          <p>
+                            {
+                              "Daca l-ai trimis deja, alege-ti culoarea preferata de mai jos. Odata ce ati ales culoarea amadoi veti trece la urmatorul pas."
+                            }
+                          </p>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <>
                       <div className="headerText">
-                        <p>Paste Fericit</p>
+                        <p>Paste Fericit!</p>
                         <h1>
                           Cineva vrea sa ciocneasca un ou cu tine!
                           <span aria-label="Iepuras" role="img">
@@ -305,7 +301,7 @@ export default function App() {
                       <div className="middleText">
                         <p>
                           Alege-ti culoarea preferata. Odata ce ati ales amadoi
-                          veti trece la pasul 2!.
+                          veti trece la urmatorul pas!.
                         </p>
                       </div>
                     </>
@@ -325,12 +321,15 @@ export default function App() {
                       {!isCreator ? "Hristos a inviat" : "Adevarat a inviat"}
                     </h1>
                     {myFightStatus === undefined ? (
-                      <p>
-                        Traditia spune ca inainte de a ciocnii ouale, trebuie sa
-                        se rosteasca “Hristos a inviat” si “Adevarat a inviat”
-                        de catre cei doi jucatori. Aici trebuie doar sa apesi pe
-                        butonul de mai jos.
-                      </p>
+                      <>
+                        <p>Perfect, v-ati ales culorile!</p>
+                        <p>
+                          Traditia spune ca inainte de a ciocni ouale, trebuie
+                          sa se rosteasca “Hristos a inviat” si “Adevarat a
+                          inviat”.
+                        </p>
+                        <p>Pe net nu rostim, ci apasam pe buton :)</p>
+                      </>
                     ) : (
                       <>
                         <p>
@@ -338,7 +337,10 @@ export default function App() {
                             🤔💭
                           </span>
                         </p>
-                        <p>Asteptam sa raspunda la uarare si apoi "Cioc!"</p>
+                        <p>
+                          Urarea ta s-a trimis! Asteptam sa raspunda la uarare
+                          si apoi "Cioc!"
+                        </p>
                       </>
                     )}
                     <button
@@ -362,20 +364,30 @@ export default function App() {
                     {myScore > myOponentScore ? (
                       <>
                         <h1>
-                          Felicitari, ai castigat!
+                          Felicitari, ai oul mai puternic! &nbsp;
                           <span aria-label="Iepuras" role="img">
                             👌
                           </span>
                         </h1>
+                        <p>Pacat ca nu poti sa il pastrezi pana la anu' :)</p>
+                        <p>
+                          Dar in schimb poti sa te joci de cate ori vrei, ouale
+                          pe net nu se termina niciodata!
+                        </p>
                       </>
                     ) : (
                       <>
                         <h1>
-                          Ai pierdut
+                          Oul tau s-a spart &nbsp;
                           <span aria-label="Iepuras" role="img">
                             🤦🏻‍♀️
                           </span>
                         </h1>
+                        <p>Pacat ca nu poti sa il mananci macar :)</p>
+                        <p>
+                          Dar in schimb poti sa te joci de cate ori vrei, ouale
+                          pe net nu se termina niciodata!
+                        </p>
                       </>
                     )}
                   </div>
@@ -411,135 +423,6 @@ export default function App() {
           )}
         </div>
         <Footer />
-      </div>
-
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <></>
-      <div className="stuff">
-        {userID !== null && currentRoomID !== null && isCreator !== null ? (
-          <div>
-            <p>Userid: {userID}</p>
-            <p>
-              {isCreator ? <strong>Creator</strong> : <strong>Guest</strong>}
-              <button onClick={onCopyAndNext}>Share</button>
-              {currentRoomID === ""
-                ? " on nothing."
-                : ` on room: ${currentRoomID}`}
-            </p>
-
-            {currentRoomID !== "" && (
-              <>
-                <label htmlFor="option_color">Select color: </label>
-                <select
-                  id="option_color"
-                  onChange={e => {
-                    onColorChange(e.target.value);
-                  }}
-                  value={mySelectedColor}
-                  name="color"
-                  placeholder="Select color"
-                >
-                  <option>Please select something</option>
-                  {colorOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                {myOponentColor && mySelectedColor && (
-                  <>
-                    <br />
-                    <br />
-                    <label>
-                      Fight:{" "}
-                      <input
-                        onChange={e => {
-                          onFightChanged(e.target.value);
-                        }}
-                        type="checkbox"
-                        name="fight"
-                      />
-                    </label>
-                  </>
-                )}
-                {myOponentColor ? (
-                  <>
-                    <p>Oponent color: {myOponentColor}</p>
-                    <p>Oponent fight status: {myOponentFightStatus}</p>
-                    <p>My fight status: {myFightStatus}</p>
-
-                    <p>Oponent score: {myOponentScore}</p>
-                    <p>My score: {myScore}</p>
-                  </>
-                ) : (
-                  <p>Waiting for oponent to select color</p>
-                )}
-
-                {myOponentScore && myScore && (
-                  <h1>
-                    {myOponentScore < myScore
-                      ? "You are a winner 🥇"
-                      : "You lost 😭"}
-                  </h1>
-                )}
-              </>
-            )}
-            <br />
-            <hr />
-            <button onClick={addRoom}>Create new Room</button>
-            <hr />
-            <h3>Rooms</h3>
-            <ul>
-              {rooms.map(room => (
-                <li
-                  onClick={() => {
-                    changeRoom(room.id);
-                  }}
-                  key={room.id}
-                >
-                  {room.id === currentRoomID ? (
-                    <strong>{room.id} </strong>
-                  ) : (
-                    <span>{room.id}</span>
-                  )}
-                  <br /> Creator:{" "}
-                  {room.creator === userID ? "You" : room.creator}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <>{userID === null && isCreator !== true && <p>Loading</p>}</>
-        )}
       </div>
     </>
   );
