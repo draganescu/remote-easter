@@ -5,15 +5,17 @@ import "firebase/firestore";
 import "firebase/auth";
 
 // TODO: Replace the following with your app's Firebase project configuration
+// Andrei Pet's firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBYfqZ5GGRok538J5x94uMg-DclnRMDIR4",
-  authDomain: "remote-easter-tap.firebaseapp.com",
-  databaseURL: "https://remote-easter-tap.firebaseio.com",
-  projectId: "remote-easter-tap",
-  storageBucket: "remote-easter-tap.appspot.com",
-  messagingSenderId: "39955025923",
-  appId: "1:39955025923:web:8f9dd39ba0b89dec0cbe36"
+    apiKey: "AIzaSyAeHT25wUYbw3GtEFyhiSj4bYCYvQCZxpE",
+    authDomain: "eggster.firebaseapp.com",
+    databaseURL: "https://eggster.firebaseio.com",
+    projectId: "eggster",
+    storageBucket: "eggster.appspot.com",
+    messagingSenderId: "899598577489",
+    appId: "1:899598577489:web:331ca666050417bdb66d70"
 };
+  
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
