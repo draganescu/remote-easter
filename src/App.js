@@ -251,7 +251,7 @@ export default function App() {
                         <button onClick={() => {
                           navigator.share({
                             title: "Hai sa spargem un ou virtual",
-                            text: "Aici poti ciocni pe net un ou cu mine",
+                            text: "Hai sa ciocnim un ou!",
                             url: window.location.href
                           })
                             .then(() => {
