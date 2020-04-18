@@ -122,13 +122,14 @@ export default function App() {
 
   function onColorChange(color, scrollPosition) {
     console.log("onColorChange", color);
-    const key = isCreator ? "creator_color" : "guest_color";
+    const keyColor = isCreator ? "creator_color" : "guest_color";
+    const keyScroll = isCreator ? "creator_scrollPosition" : "guest_scrollPosition";
     db.collection("rooms")
       .doc(currentRoomID)
       .set(
         {
-          [key]: color,
-          'scrollPosition': scrollPosition
+          [keyColor]: color,
+          [keyScroll]: scrollPosition
         },
         { merge: true }
       );
@@ -175,6 +176,10 @@ export default function App() {
   const myOponentScore = isCreator
     ? currentRoomData.guest_score
     : currentRoomData.creator_score;
+
+    const myOponentScrollPosition = isCreator
+    ? currentRoomData.guest_scrollPosition
+    : currentRoomData.creator_scrollPosition;
 
   const isLinkShared = currentRoomData.isLinkShared;
 
@@ -245,8 +250,8 @@ export default function App() {
                       {isNativeShareEnabled ? (
                         <button onClick={() => {
                           navigator.share({
-                            title: "Hai sa spargem un ou virtual",
-                            text: "Aici poti ciocni pe net un ou cu mine",
+                            title: "Paste fericit la distanta :-)",
+                            text: "Hai aici sa ciocnim un ou pe net!",
                             url: window.location.href
                           })
                             .then(() => {
@@ -275,7 +280,7 @@ export default function App() {
               )}
               {renderWaitingColor && (
                 <>
-                  <GuestCarton activeColor={myOponentColor} scrollPosition={currentRoomData.scrollPosition} />
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={myOponentScrollPosition} />
                   {isCreator ? (
                     <div className="middleText">
                       <h1>Alege-ti culoarea oului</h1>
@@ -333,7 +338,7 @@ export default function App() {
 
               {renderWaitingFights && (
                 <>
-                  <GuestCarton activeColor={myOponentColor} scrollPosition={currentRoomData.scrollPosition}/>
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={myOponentScrollPosition}/>
                   <div className="middleText">
                     <h1>
                       {!isCreator ? "Hristos a inviat" : "Adevarat a inviat"}
