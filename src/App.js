@@ -338,7 +338,7 @@ export default function App() {
                           </span>
                         </p>
                         <p>
-                          Urarea ta s-a trimis! Asteptam sa raspunda la uarare
+                          Urarea ta s-a trimis! Asteptam sa raspunda la urare
                           si apoi "Cioc!"
                         </p>
                       </>
