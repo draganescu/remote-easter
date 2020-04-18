@@ -55,14 +55,17 @@ export default function App() {
           setCurrentRoomData(snapshot.data());
         });
         roomDb.get().then(room => {
+          const roomData = room.data();
           setCurrentRoomData(room.data());
-          if (room.data().creator === userID) {
+          if (roomData.creator === userID) {
             console.log("setUserOrGuest: I am the creator");
             setIsCreator(true);
           } else {
             console.log("setUserOrGuest: I am a guest");
             setIsCreator(false);
-            setDBwithOponent();
+            if(roomData.oponent === 'undefined') {
+              setDBwithOponent();
+            }
           }
         });
       } else {
