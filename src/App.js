@@ -13,6 +13,22 @@ function randomIntFromInterval(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+
+function GuestCarton({activeColor, scrollPosition}) {
+  return (
+    <Carton
+      isForGuests={true}
+      onEggSelect={color => {
+        console.log(
+          `You should not click here, but since you want to know, you clicked a ${color} egg`
+        );
+      }}
+      scrollPosition={scrollPosition}
+      activeColor={activeColor}
+    />
+  );
+}
+
 export default function App() {
   const [currentRoomID, setCurrentRoomID] = React.useState(
     window.location.hash.replace("#", "")
@@ -21,12 +37,13 @@ export default function App() {
   const [userID, setUserID] = React.useState(null);
   const [isCreator, setIsCreator] = React.useState(null);
   const [showCrack, setShowCrack] = React.useState(false);
+  const isNativeShareEnabled = navigator.share ? true : false;
 
   function autenticate() {
     console.log("autenticate");
     auth
       .signInAnonymously()
-      .catch(function(error) {
+      .catch(function (error) {
         console.log("Error authenticating", error);
       })
       .then(user => {
@@ -63,7 +80,7 @@ export default function App() {
           } else {
             console.log("setUserOrGuest: I am a guest");
             setIsCreator(false);
-            if(roomData.oponent === 'undefined') {
+            if (roomData.oponent === 'undefined') {
               setDBwithOponent();
             }
           }
@@ -85,7 +102,7 @@ export default function App() {
       .add({
         creator: userID
       })
-      .then(function(docRef) {
+      .then(function (docRef) {
         console.log("Document written with ID: ", docRef.id);
         window.location.hash = `#${docRef.id}`;
         setCurrentRoomID(docRef.id);
@@ -103,14 +120,16 @@ export default function App() {
       );
   }
 
-  function onColorChange(color) {
+  function onColorChange(color, scrollPosition) {
     console.log("onColorChange", color);
-    const key = isCreator ? "creator_color" : "guest_color";
+    const keyColor = isCreator ? "creator_color" : "guest_color";
+    const keyScroll = isCreator ? "creator_scrollPosition" : "guest_scrollPosition";
     db.collection("rooms")
       .doc(currentRoomID)
       .set(
         {
-          [key]: color
+          [keyColor]: color,
+          [keyScroll]: scrollPosition
         },
         { merge: true }
       );
@@ -158,21 +177,12 @@ export default function App() {
     ? currentRoomData.guest_score
     : currentRoomData.creator_score;
 
+    const myOponentScrollPosition = isCreator
+    ? currentRoomData.guest_scrollPosition
+    : currentRoomData.creator_scrollPosition;
+
   const isLinkShared = currentRoomData.isLinkShared;
 
-  function GuestCarton() {
-    return (
-      <Carton
-        isForGuests={true}
-        onEggSelect={color => {
-          console.log(
-            `You should not click here, but since you want to know, you clicked a ${color} egg`
-          );
-        }}
-        activeColor={myOponentColor}
-      />
-    );
-  }
 
   /*
   1: CreatorWelcome 
@@ -200,16 +210,6 @@ export default function App() {
   const renderResults =
     myFightStatus !== undefined && myOponentFightStatus !== undefined;
 
-  console.log({
-    isLoaded,
-    renderCreatorWelcome,
-    renderWaitingColor,
-    renderWaitingFights,
-    renderResults
-  });
-
-  const colorOptions = ["red", "blue", "yellow"];
-  console.log({ myFightStatus });
   return (
     <>
       <div className="app">
@@ -246,21 +246,41 @@ export default function App() {
                       </p>
                     </div>
                     <div className="creatorWelcome__action">
-                      <input type="text" value={window.location.href} />
-                      <clipboard-copy
-                        class={"clipbutton"}
-                        value={window.location.href}
-                        onClick={onCopyAndNext}
-                      >
-                        Copiaza link si mergi mai departe ->
-                      </clipboard-copy>
+                      <input type="text" readOnly value={window.location.href} />
+                      {isNativeShareEnabled ? (
+                        <button onClick={() => {
+                          navigator.share({
+                            title: "Paste fericit la distanta :-)",
+                            text: "Hai aici sa ciocnim un ou pe net!",
+                            url: window.location.href
+                          })
+                            .then(() => {
+                              console.log("Multumim de share");
+                              onCopyAndNext();
+                            })
+                            .catch(err => {
+                              console.log(`N-am putut sa facem share`, err.message);
+                            });
+                        }}>
+                          Apasa aici sa trimiti link-ul
+                        </button>
+                      ) : (
+                          <clipboard-copy
+                            class={"clipbutton"}
+                            value={window.location.href}
+                            onClick={onCopyAndNext}
+                          >
+                            Copiaza link si mergi mai departe ->
+                          </clipboard-copy>
+                        )}
+
                     </div>
                   </div>
                 </>
               )}
               {renderWaitingColor && (
                 <>
-                  <GuestCarton />
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={myOponentScrollPosition} />
                   {isCreator ? (
                     <div className="middleText">
                       <h1>Alege-ti culoarea oului</h1>
@@ -291,24 +311,24 @@ export default function App() {
                       )}
                     </div>
                   ) : (
-                    <>
-                      <div className="headerText">
-                        <p>Paste Fericit!</p>
-                        <h1>
-                          Cineva vrea sa ciocneasca un ou cu tine!
+                      <>
+                        <div className="headerText">
+                          <p>Paste Fericit!</p>
+                          <h1>
+                            Cineva vrea sa ciocneasca un ou cu tine!
                           <span aria-label="Iepuras" role="img">
-                            🐰
+                              🐰
                           </span>
-                        </h1>
-                      </div>
-                      <div className="middleText">
-                        <p>
-                          Alege-ti culoarea preferata. Odata ce ati ales amadoi
-                          veti trece la urmatorul pas!.
+                          </h1>
+                        </div>
+                        <div className="middleText">
+                          <p>
+                            Alege-ti culoarea preferata. Odata ce ati ales amadoi
+                            veti trece la urmatorul pas!.
                         </p>
-                      </div>
-                    </>
-                  )}
+                        </div>
+                      </>
+                    )}
                   <Carton
                     onEggSelect={onColorChange}
                     activeColor={mySelectedColor}
@@ -318,7 +338,7 @@ export default function App() {
 
               {renderWaitingFights && (
                 <>
-                  <GuestCarton />
+                  <GuestCarton activeColor={myOponentColor} scrollPosition={myOponentScrollPosition}/>
                   <div className="middleText">
                     <h1>
                       {!isCreator ? "Hristos a inviat" : "Adevarat a inviat"}
@@ -334,18 +354,18 @@ export default function App() {
                         <p>Pe net nu rostim, ci apasam pe buton :)</p>
                       </>
                     ) : (
-                      <>
-                        <p>
-                          <span aria-label="Iepuras" role="img">
-                            🤔💭
+                        <>
+                          <p>
+                            <span aria-label="Iepuras" role="img">
+                              🤔💭
                           </span>
+                          </p>
+                          <p>
+                            Urarea ta s-a trimis! Asteptam sa raspunda la urare
+                            si apoi "Cioc!"
                         </p>
-                        <p>
-                          Urarea ta s-a trimis! Asteptam sa raspunda la urare
-                          si apoi "Cioc!"
-                        </p>
-                      </>
-                    )}
+                        </>
+                      )}
                     <button
                       className="fightButton"
                       disabled={myFightStatus}
@@ -363,7 +383,7 @@ export default function App() {
 
               {renderResults && (
                 <>
-                  { showCrack && <div className="headerText">
+                  {showCrack && <div className="headerText">
                     {myScore > myOponentScore ? (
                       <>
                         <h1>
@@ -379,21 +399,21 @@ export default function App() {
                         </p>
                       </>
                     ) : (
-                      <>
-                        <h1>
-                          Oul tau s-a spart &nbsp;
+                        <>
+                          <h1>
+                            Oul tau s-a spart &nbsp;
                           <span aria-label="Iepuras" role="img">
-                            🤦🏻‍♀️
+                              🤦🏻‍♀️
                           </span>
-                        </h1>
-                        <p>Pacat ca nu poti sa il mananci macar :)</p>
-                        <p>
-                          Dar in schimb poti sa te joci de cate ori vrei, ouale
-                          pe net nu se termina niciodata!
+                          </h1>
+                          <p>Pacat ca nu poti sa il mananci macar :)</p>
+                          <p>
+                            Dar in schimb poti sa te joci de cate ori vrei, ouale
+                            pe net nu se termina niciodata!
                         </p>
-                      </>
-                    )}
-                  </div> }
+                        </>
+                      )}
+                  </div>}
                   <div className="smash-wrapper">
                     <Smash showCrack={setShowCrack}>
                       <Egg
@@ -409,21 +429,21 @@ export default function App() {
                     </Smash>
                   </div>
                   <div className="middleText">
-                    { showCrack && <button
+                    {showCrack && <button
                       onClick={() => {
                         window.location.hash = "";
                         window.location.reload();
                       }}
                     >
                       Incepe un joc nou
-                    </button> }
+                    </button>}
                   </div>
                 </>
               )}
             </>
           ) : (
-            <p>Loading...</p>
-          )}
+              <p>Loading...</p>
+            )}
         </div>
         <Footer />
       </div>

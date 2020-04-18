@@ -3,7 +3,7 @@ import Egg from "../Egg/Egg";
 
 import "./_style.scss";
 
-export default function Carton({ onEggSelect, activeColor, isForGuests }) {
+export default function Carton({ onEggSelect, activeColor, isForGuests, scrollPosition = 0 }) {
   let colors = [
     "red",
     "blue",
@@ -13,8 +13,16 @@ export default function Carton({ onEggSelect, activeColor, isForGuests }) {
     "gold",
     "indigo"
   ];
+
+  // In order to keep the selected egg by the opponent always in view
+  const wrapperRef = React.useRef(null);
+  React.useEffect(() => {
+    wrapperRef.current.scrollLeft = scrollPosition
+  }, [scrollPosition])
+
   return (
     <div
+      ref={wrapperRef}
       className={`carton ${
         isForGuests && !activeColor ? "is-not-selected" : "is-selected"
       } ${isForGuests ? "is-for-guests" : "is-for-hosts"}`}
@@ -25,7 +33,7 @@ export default function Carton({ onEggSelect, activeColor, isForGuests }) {
             key={color}
             active={activeColor === color}
             color={color}
-            onClick={() => onEggSelect(color)}
+            onClick={() => onEggSelect(color, wrapperRef.current.scrollLeft)}
           />
         );
       })}

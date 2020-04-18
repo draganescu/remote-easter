@@ -2,7 +2,7 @@ import React from "react";
 
 export const Footer = () => (
   <footer>
-    <h7>Facut pe fuga de:</h7>
+    <p>Facut pe fuga de:</p>
     <ul>
       <li>
         <a href={"https://twitter.com/aflorescu"}>Adrian Florescu</a>
@@ -17,7 +17,7 @@ export const Footer = () => (
         <a href={"https://twitter.com/andraganescu"}>Andrei Draganescu</a>
       </li>
       <li>
-        <p>👋</p>
+        <p><span aria-label="Salut" role="img">👋</span></p>
       </li>
     </ul>
   </footer>
