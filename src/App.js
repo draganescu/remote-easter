@@ -360,7 +360,7 @@ export default function App() {
 
               {renderResults && (
                 <>
-                  <div className="headerText">
+                  { showCrack && <div className="headerText">
                     {myScore > myOponentScore ? (
                       <>
                         <h1>
@@ -390,7 +390,7 @@ export default function App() {
                         </p>
                       </>
                     )}
-                  </div>
+                  </div> }
                   <div className="smash-wrapper">
                     <Smash showCrack={setShowCrack}>
                       <Egg
@@ -406,14 +406,14 @@ export default function App() {
                     </Smash>
                   </div>
                   <div className="middleText">
-                    <button
+                    { showCrack && <button
                       onClick={() => {
                         window.location.hash = "";
                         window.location.reload();
                       }}
                     >
                       Incepe un joc nou
-                    </button>
+                    </button> }
                   </div>
                 </>
               )}
