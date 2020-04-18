@@ -237,7 +237,7 @@ export default function App() {
                       </p>
                     </div>
                     <div className="creatorWelcome__action">
-                      <input type="text" defautvalue={window.location.href} />
+                      <input type="text" readOnly value={window.location.href} />
                       {isNativeShareEnabled ? (
                         <button onClick={() => {
                           navigator.share({
