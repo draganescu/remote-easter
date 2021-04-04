@@ -17,7 +17,9 @@ export default function Carton({ onEggSelect, activeColor, isForGuests, scrollPo
   // In order to keep the selected egg by the opponent always in view
   const wrapperRef = React.useRef(null);
   React.useEffect(() => {
-    wrapperRef.current.scrollLeft = scrollPosition
+    if(isForGuests) {
+      wrapperRef.current.scrollLeft = scrollPosition
+    }
   }, [scrollPosition])
 
   return (
