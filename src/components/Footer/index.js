@@ -5,7 +5,7 @@ export const Footer = () => (
     <p>Facut pe fuga de:</p>
     <ul>
       <li>
-        <a href={"https://twitter.com/aflorescu"}>Adrian Florescu</a>
+        <a href={"https://adrianf.com"}>Adrian Florescu</a>
       </li>
       <li>
         <a href={"https://github.com/mindplayzone/"}>Catalin Stan</a>
