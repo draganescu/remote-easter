@@ -2,7 +2,7 @@ import React from "react";
 
 export const Footer = () => (
   <footer>
-    <p>Facut pe fuga de:</p>
+    <p>🥚 Facut pe fuga de:</p>
     <ul>
       <li>
         <a href={"https://adrianf.com"}>Adrian Florescu</a>
