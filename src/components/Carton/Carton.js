@@ -20,7 +20,7 @@ export default function Carton({ onEggSelect, activeColor, isForGuests, scrollPo
     if(isForGuests) {
       wrapperRef.current.scrollLeft = scrollPosition
     }
-  }, [scrollPosition])
+  }, [scrollPosition, isForGuests])
 
   return (
     <div
